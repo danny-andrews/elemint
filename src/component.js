@@ -1,27 +1,28 @@
 import { subscribe } from "./callbags";
 import Renderer from "./renderer";
 import Cell from "./cell";
+import { Hole } from "lighterhtml";
 
-const fromPairs = (pairs) => pairs.reduce(
-  (acc, [key, value]) => ({ ...acc, [key]: value }),
-  {}
-);
+const fromPairs = (pairs) =>
+  pairs.reduce((acc, [key, value]) => ({ ...acc, [key]: value }), {});
 
 const noop = () => {};
 
-const normalizePropConfigs = propConfigs => propConfigs.map(propConfig =>
-  propConfig.attr === false
-    ? propConfig
-    : {
-      ...propConfig,
-      attr: {
-        parse: propConfig.default !== undefined
-          ? propConfig.default.constructor
-          : String,
-        ...(propConfig.attr || {})
-      }
-    }
-);
+const normalizePropConfigs = (propConfigs) =>
+  propConfigs.map((propConfig) =>
+    propConfig.attr === false
+      ? propConfig
+      : {
+          ...propConfig,
+          attr: {
+            parse:
+              propConfig.default !== undefined
+                ? propConfig.default.constructor
+                : String,
+            ...(propConfig.attr || {}),
+          },
+        }
+  );
 
 const createStyleSheet = (styles) => {
   const sheet = new CSSStyleSheet();
@@ -29,9 +30,9 @@ const createStyleSheet = (styles) => {
   return sheet;
 };
 
-const Component = ({ props, styles }, cb) => {
-  const propConfigs = normalizePropConfigs(props);
-  
+const Component = (propConfigs, cb, styles) => {
+  propConfigs = normalizePropConfigs(propConfigs);
+
   const propMap = fromPairs(
     propConfigs.map((propConfig) => [propConfig.name, propConfig])
   );
@@ -53,6 +54,9 @@ const Component = ({ props, styles }, cb) => {
       });
       this.destroy = noop;
       this.shadowRoot.adoptedStyleSheets = [createStyleSheet(styles)];
+      this._setupProperties();
+      this._setupAttributes();
+      this._render();
     }
 
     static get observedAttributes() {
@@ -65,17 +69,11 @@ const Component = ({ props, styles }, cb) => {
         return;
       }
 
-      if(propMap[name].attr.parse === Boolean) {
+      if (propMap[name].attr.parse === Boolean) {
         state[name].set(this.hasAttribute(name));
       } else {
         state[name].set(propMap[name].attr.parse(newVal));
       }
-    }
-
-    connectedCallback() {
-      this._setupProperties();
-      this._setupAttributes();
-      this._render();
     }
 
     disconnectedCallback() {
@@ -84,27 +82,27 @@ const Component = ({ props, styles }, cb) => {
     }
 
     _setAttribute(name, val) {
-      if(val == null) return;
+      if (val == null) return;
 
       this._internalAttributeChange = true;
 
-      if(val === false) {
+      if (val === false) {
         this.removeAttribute(name);
-      } else if(val === true) {
-        this.setAttribute(name, '');
+      } else if (val === true) {
+        this.setAttribute(name, "");
       } else {
-        this.setAttribute(name, String(val))
+        this.setAttribute(name, String(val));
       }
     }
 
     _setupProperties() {
       propConfigs.forEach(({ name }) => {
         Object.defineProperty(this, name, {
-          set: value => {
+          set: (value) => {
             state[name].set(value);
           },
-          get: state[name].get
-        })
+          get: state[name].get,
+        });
       });
     }
 
@@ -133,13 +131,14 @@ const Component = ({ props, styles }, cb) => {
         root: this.shadowRoot,
         context: this,
       });
-      const [dom, onDestroy] = [].concat(result);
+      const { template, destroy } =
+        result instanceof Hole ? { template: result } : result;
 
-      if (onDestroy) {
-        this.destroy = onDestroy;
+      if (destroy) {
+        this.destroy = destroy;
       }
 
-      render(this.shadowRoot, dom);
+      render(this.shadowRoot, template);
     }
   };
 };
