@@ -1,4 +1,4 @@
-import makeComponent from "../src/component";
+import makeElement from "../src/component";
 import { map, subscribe } from "../src/callbags";
 
 const KEYCODES = {
@@ -8,14 +8,18 @@ const KEYCODES = {
 
 let count = 0;
 
-const Component = makeComponent(
-  [
-    { name: "disabled", default: false },
-    { name: "checked", default: false },
-    { name: "label" },
-  ],
-  ({ disabled, checked, label }, { html, emit }) => {
-    const toggleChecked = () => checked.update((a) => !a);
+const Element = makeElement(
+  {
+    disabled: { default: false },
+    checked: { default: false },
+    label: {},
+  },
+  ({ disabled, checked, label }, html, { emit }) => {
+    const toggleChecked = () => {
+      if (!disabled.get()) {
+        checked.update((a) => !a);
+      }
+    };
 
     const onKeyDown = (event) => {
       switch (event.keyCode) {
@@ -24,12 +28,6 @@ const Component = makeComponent(
           event.preventDefault();
           toggleChecked();
           break;
-      }
-    };
-
-    const onClick = () => {
-      if (!disabled.get()) {
-        toggleChecked();
       }
     };
 
@@ -56,7 +54,7 @@ const Component = makeComponent(
           <slot></slot>
         </label>
         <div
-          onclick=${onClick}
+          onclick=${toggleChecked}
           onkeydown=${onKeyDown}
           part="button"
           class="button"
@@ -82,27 +80,27 @@ const Component = makeComponent(
       display: flex;
       align-items: center;
     }
-  
+
     :host([checked]) .thumb {
       right: 0px;
     }
-  
+
     :host([disabled]) {
       opacity: 50%;
     }
-  
+
     .button {
       display: inline-block;
       position: relative;
       height: 16px;
       width: 36px;
     }
-  
+
     .track {
       height: 100%;
       background-color: lightgrey;
     }
-  
+
     .thumb {
       right: 18px;
       transition: right .1s;
@@ -112,24 +110,24 @@ const Component = makeComponent(
       height: 100%;
       background-color: grey;
     }
-  
+
     div[part="button"]:focus-visible,
     div[part="button"]:focus:not(:focus-visible) {
       outline: none;
     }
-  
+
     div[part="button"]:focus .thumb {
       box-shadow: var(--generic-switch-focus, 0 0 0 2px #145dce);
     }
-  
+
     div[part="button"]:focus:not(:focus-visible) .thumb {
       box-shadow: none;
     }
-  
+
     label[part="label"] {
       user-select: none;
     }
   `
 );
 
-customElements.define("my-switch", Component);
+customElements.define("my-switch", Element);

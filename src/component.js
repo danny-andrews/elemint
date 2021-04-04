@@ -3,25 +3,28 @@ import Renderer from "./renderer";
 import Cell from "./cell";
 import { Hole } from "lighterhtml";
 
-const fromPairs = (pairs) =>
-  pairs.reduce((acc, [key, value]) => ({ ...acc, [key]: value }), {});
-
 const noop = () => {};
 
-const normalizePropConfigs = (propConfigs) =>
-  propConfigs.map((propConfig) =>
-    propConfig.attr === false
-      ? propConfig
-      : {
-          ...propConfig,
-          attr: {
-            parse:
-              propConfig.default !== undefined
-                ? propConfig.default.constructor
-                : String,
-            ...(propConfig.attr || {}),
-          },
-        }
+const parserForValue = (value) =>
+  value === undefined || typeof value === "string" ? String : value.constructor;
+
+const normalizePropConfig = (propConfig) =>
+  propConfig.attr === false
+    ? propConfig
+    : {
+        ...propConfig,
+        attr: {
+          parse: parserForValue(propConfig.default),
+          ...(propConfig.attr || {}),
+        },
+      };
+
+const makePropMap = (props) =>
+  new Map(
+    Object.entries(props).map(([name, config]) => [
+      name,
+      normalizePropConfig(config),
+    ])
   );
 
 const createStyleSheet = (styles) => {
@@ -30,15 +33,13 @@ const createStyleSheet = (styles) => {
   return sheet;
 };
 
-const Component = (propConfigs, cb, styles) => {
-  propConfigs = normalizePropConfigs(propConfigs);
+const Component = (props, init, css) => {
+  const propMap = makePropMap(props);
 
-  const propMap = fromPairs(
-    propConfigs.map((propConfig) => [propConfig.name, propConfig])
-  );
-  const state = fromPairs(
-    propConfigs.map((propConfig) => [propConfig.name, Cell(propConfig.default)])
-  );
+  const propConfigs = Array.from(propMap.entries()).map(([key, value]) => ({
+    name: key,
+    ...value,
+  }));
 
   const observedAttributes = propConfigs
     .filter((prop) => prop.attr !== false)
@@ -47,16 +48,10 @@ const Component = (propConfigs, cb, styles) => {
   return class extends HTMLElement {
     constructor() {
       super();
-      this.attachShadow({ mode: "open" });
       this.subscriptions = [];
-      this.renderer = Renderer((a) => {
-        this.subscriptions.push(a);
-      });
       this.destroy = noop;
-      this.shadowRoot.adoptedStyleSheets = [createStyleSheet(styles)];
-      this._setupProperties();
-      this._setupAttributes();
-      this._render();
+      this.attachShadow({ mode: "open" });
+      this._setupState(propConfigs);
     }
 
     static get observedAttributes() {
@@ -69,11 +64,18 @@ const Component = (propConfigs, cb, styles) => {
         return;
       }
 
-      if (propMap[name].attr.parse === Boolean) {
-        state[name].set(this.hasAttribute(name));
+      if (propMap.get(name).attr.parse === Boolean) {
+        this.state[name].set(this.hasAttribute(name));
       } else {
-        state[name].set(propMap[name].attr.parse(newVal));
+        this.state[name].set(propMap.get(name).attr.parse(newVal));
       }
+    }
+
+    connectedCallback() {
+      this._setupStyles(css);
+      this._setupProperties(propConfigs);
+      this._setupAttributes(observedAttributes);
+      this._render();
     }
 
     disconnectedCallback() {
@@ -95,26 +97,37 @@ const Component = (propConfigs, cb, styles) => {
       }
     }
 
-    _setupProperties() {
+    _setupProperties(propConfigs) {
       propConfigs.forEach(({ name }) => {
         Object.defineProperty(this, name, {
           set: (value) => {
-            state[name].set(value);
+            this.state[name].set(value);
           },
-          get: state[name].get,
+          get: this.state[name].get,
         });
       });
     }
 
-    _setupAttributes() {
-      propConfigs
-        .filter(({ attr }) => attr !== false)
-        .forEach(({ name }) => {
-          const unsubscribe = subscribe((val) => {
-            this._setAttribute(name, val);
-          })(state[name]);
-          this.subscriptions.push(unsubscribe);
-        });
+    _setupAttributes(attributeNames) {
+      attributeNames.forEach((name) => {
+        const unsubscribe = subscribe((val) => {
+          this._setAttribute(name, val);
+        })(this.state[name]);
+        this.subscriptions.push(unsubscribe);
+      });
+    }
+
+    _setupStyles(styles) {
+      if (styles) {
+        this.shadowRoot.adoptedStyleSheets = [createStyleSheet(styles)];
+      }
+    }
+
+    _setupState(propConfigs) {
+      this.state = {};
+      propConfigs.forEach((propConfig) => {
+        this.state[propConfig.name] = Cell(propConfig.default);
+      });
     }
 
     _emit(eventName, detail, eventOptions = {}) {
@@ -124,18 +137,25 @@ const Component = (propConfigs, cb, styles) => {
     }
 
     _render() {
-      const { render, html } = this.renderer;
-      const result = cb(state, {
-        html,
+      const { html, render } = Renderer((subscription) => {
+        this.subscriptions.push(subscription);
+      });
+      const result = init(this.state, html, {
         emit: this._emit.bind(this),
         root: this.shadowRoot,
         context: this,
       });
-      const { template, destroy } =
+
+      const { template, destroy, methods } =
         result instanceof Hole ? { template: result } : result;
 
       if (destroy) {
         this.destroy = destroy;
+      }
+      if (methods) {
+        Object.entries(methods).forEach(([name, fn]) => {
+          this[name] = fn;
+        });
       }
 
       render(this.shadowRoot, template);

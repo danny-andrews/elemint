@@ -17,7 +17,7 @@ export default {
     terser(),
     analyze({ summaryOnly: true }),
     filesize({
-      showMinifiedSize: true,
+      showMinifiedSize: false,
       showGzippedSize: false,
       showBrotliSize: true,
     }),

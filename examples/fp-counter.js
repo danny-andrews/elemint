@@ -1,14 +1,14 @@
 import * as R from "ramda";
 import { pipe, combine, map, subscribe } from "../src/callbags";
-import Component from "../src/component";
+import makeElement from "../src/component";
 
-const Class = Component(
-  [
-    { name: "multiplier", default: 1 },
-    { name: "count", default: 0 },
-    { name: "disabled", default: false },
-  ],
-  ({ count, multiplier, disabled }, { html, emit }) => {
+const Element = makeElement(
+  {
+    multiplier: { default: 1 },
+    count: { default: 0 },
+    disabled: { default: false },
+  },
+  ({ count, multiplier, disabled }, html, { emit }) => {
     // Computed property
     const total = pipe(
       combine(count, multiplier),
@@ -39,4 +39,4 @@ const Class = Component(
   }
 );
 
-customElements.define("fp-counter", Class);
+customElements.define("fp-counter", Element);
