@@ -8,8 +8,8 @@ import makeElement from "mint-element";
 const Counter = makeElement(
   [{ name: "count", default: 0 }],
   ({ count }, { html }) => html`
-    <button onclick=${() => count.update(a => a - 1)}>-</button>
-    <button onclick=${() => count.update(a => a + 1)}>+</button>
+    <button onclick=${() => count.update((a) => a - 1)}>-</button>
+    <button onclick=${() => count.update((a) => a + 1)}>+</button>
     <div>Count: ${count}</div>
   `
 );
@@ -83,6 +83,7 @@ Calmjs
 1. No classes/multiple inheretence, etc.
 1. No polyfills assumed or included.
 1. Smaller bundle.
+1. No lifecycle to figure out.
 
 ## Aside: Google's Best Practices
 

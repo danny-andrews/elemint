@@ -14,9 +14,10 @@ const Element = makeElement(
     checked: { default: false },
     label: {},
   },
-  ({ disabled, checked, label }, html, { emit }) => {
+  function* ({ disabled, checked, label }, html, { emit }) {
     const toggleChecked = () => {
       if (!disabled.get()) {
+        emit("checked-changed", checked);
         checked.update((a) => !a);
       }
     };
@@ -40,11 +41,6 @@ const Element = makeElement(
     const labelStyle = map((label) => (!label ? { marginRight: "10px" } : {}))(
       label
     );
-
-    subscribe((checked) => {
-      // Emit events
-      emit("checked-changed", checked);
-    })(checked);
 
     count++;
 

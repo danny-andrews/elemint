@@ -6,6 +6,8 @@
     <script type="module" src="/examples/fp-counter.js"></script>
     <script type="module" src="/examples/switch.js"></script>
     <script type="module" src="/examples/my-switch.js"></script>
+    <script type="module" src="/examples/binding.js"></script>
+    <script type="module" src="/examples/tests.js"></script>
   </head>
   <body>
     <my-counter></my-counter>
@@ -17,11 +19,6 @@
     <my-switch>
       <span part="label">Hey</span>
     </my-switch>
-    <script>
-      const counter = document.querySelector("fp-counter");
-      counter.addEventListener("total-changed", (e) => {
-        console.log(e.detail);
-      });
-    </script>
+    <my-input />
   </body>
 </html>

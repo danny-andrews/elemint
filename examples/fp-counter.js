@@ -1,6 +1,16 @@
 import * as R from "ramda";
-import { pipe, combine, map, subscribe } from "../src/callbags";
+import { pipe, combine, map } from "../src/callbags";
 import makeElement from "../src/component";
+import Cell from "../src/Cell";
+
+const createRef = () => {
+  const ref = Cell(null);
+  const refSetter = (el) => {
+    ref.set(el);
+  };
+
+  return [ref, refSetter];
+};
 
 const Element = makeElement(
   {
@@ -8,34 +18,32 @@ const Element = makeElement(
     count: { default: 0 },
     disabled: { default: false },
   },
-  ({ count, multiplier, disabled }, html, { emit }) => {
+  function* ({ count, multiplier, disabled }, html, { emit, context }) {
     // Computed property
     const total = pipe(
       combine(count, multiplier),
       map(([a, b]) => a * b)
     );
-
-    // Subscribe to a property
-    const unsubscribe = subscribe((t) => {
-      // Emit events
-      emit("total-changed", t);
-    })(total);
-
-    return {
-      template: html`
-        <button ?disabled=${disabled} onclick=${() => count.update(R.dec)}>
-          -
-        </button>
-        <button ?disabled=${disabled} onclick=${() => count.update(R.inc)}>
-          +
-        </button>
-        <button onclick=${() => disabled.update(R.not)}>Toggle Disabled</button>
-        <div>Count: ${count}</div>
-        <div>Multiplier: ${multiplier}</div>
-        <div>Total: ${total}</div>
-      `,
-      destroy: unsubscribe,
+    const increment = () => {
+      count.update(R.inc);
+      emit("count-changed", count.get());
     };
+    const decrement = () => {
+      count.update(R.dec);
+      emit("count-changed", count.get());
+    };
+    console.log(context.querySelector("decrement"));
+
+    return html`
+      <button part="decrement" ?disabled=${disabled} onclick=${decrement}>
+        -
+      </button>
+      <button ?disabled=${disabled} onclick=${increment}>+</button>
+      <button onclick=${() => disabled.update(R.not)}>Toggle Disabled</button>
+      <div>Count: ${count}</div>
+      <div>Multiplier: ${multiplier}</div>
+      <div>Total: ${total}</div>
+    `;
   }
 );
 

@@ -5,6 +5,40 @@ import { Hole } from "lighterhtml";
 
 const noop = () => {};
 
+const last = (arr) => arr[arr.length - 1];
+
+const pipe = (...fns) => (x) => fns.reduce((v, f) => f(v), x);
+
+const generatorToArray = (generator) => {
+  let array = [];
+  let result;
+  while (true) {
+    result = generator.next();
+    array.push(result.value);
+    if (result.done) {
+      break;
+    }
+  }
+  return array;
+};
+
+const syncCells = (cell1, cell2) => {
+  let ignoreUpdate = false;
+
+  return pipe(
+    subscribe((a) => {
+      ignoreUpdate = true;
+      cell1.set(a);
+      ignoreUpdate = false;
+    })(cell2),
+    subscribe((a) => {
+      if (!ignoreUpdate) {
+        cell2.set(a);
+      }
+    })(cell1)
+  );
+};
+
 const parserForValue = (value) =>
   value === undefined || typeof value === "string" ? String : value.constructor;
 
@@ -52,6 +86,8 @@ const Component = (props, init, css) => {
       this.destroy = noop;
       this.attachShadow({ mode: "open" });
       this._setupState(propConfigs);
+      this._setupProperties(propConfigs);
+      this._setupAttributes(observedAttributes);
     }
 
     static get observedAttributes() {
@@ -60,7 +96,6 @@ const Component = (props, init, css) => {
 
     attributeChangedCallback(name, _, newVal) {
       if (this._internalAttributeChange) {
-        this._internalAttributeChange = false;
         return;
       }
 
@@ -73,8 +108,6 @@ const Component = (props, init, css) => {
 
     connectedCallback() {
       this._setupStyles(css);
-      this._setupProperties(propConfigs);
-      this._setupAttributes(observedAttributes);
       this._render();
     }
 
@@ -95,13 +128,19 @@ const Component = (props, init, css) => {
       } else {
         this.setAttribute(name, String(val));
       }
+
+      this._internalAttributeChange = false;
     }
 
     _setupProperties(propConfigs) {
       propConfigs.forEach(({ name }) => {
         Object.defineProperty(this, name, {
           set: (value) => {
-            this.state[name].set(value);
+            if (value.get && value.set && value.update) {
+              this.subscriptions.push(syncCells(value, this.state[name]));
+            } else {
+              this.state[name].set(value);
+            }
           },
           get: this.state[name].get,
         });
@@ -140,14 +179,23 @@ const Component = (props, init, css) => {
       const { html, render } = Renderer((subscription) => {
         this.subscriptions.push(subscription);
       });
-      const result = init(this.state, html, {
+      let result = init(this.state, html, {
         emit: this._emit.bind(this),
         root: this.shadowRoot,
         context: this,
       });
+      const values =
+        typeof result.next === "function" ? generatorToArray(result) : [result];
+      const actualResult = last(values);
+      const subscriptions = values.slice(0, -1);
+      subscriptions.forEach((sub) => {
+        this.subscriptions.push(sub);
+      });
 
       const { template, destroy, methods } =
-        result instanceof Hole ? { template: result } : result;
+        actualResult instanceof Hole
+          ? { template: actualResult }
+          : actualResult;
 
       if (destroy) {
         this.destroy = destroy;
