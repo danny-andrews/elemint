@@ -1,4 +1,4 @@
-import makeElement from "../src/component";
+import makeElement from "../src/element/component";
 
 const Element = makeElement(
   {

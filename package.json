@@ -2,7 +2,7 @@
   "scripts": {
     "serve": "snowpack dev --reload --open=none",
     "build": "rollup --config",
-    "test": "tap --no-coverage"
+    "test": "tap --no-coverage --reporter=dot"
   },
   "type": "module",
   "dependencies": {
@@ -27,5 +27,5 @@
     "serve": "^11.3.2",
     "snowpack": "^3.0.11",
     "tap": "^15.0.6"
-  },
+  }
 }

@@ -1,5 +1,5 @@
-import makeElement from "../src/component";
-import { map } from "../src/cell";
+import makeElement from "../src/element/component";
+import { map } from "../src/reactive/index";
 
 const Element = makeElement(
   {

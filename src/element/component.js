@@ -1,5 +1,5 @@
-import Renderer from "./renderer";
-import Cell from "./cell";
+import Renderer from "../renderer/renderer";
+import { makeCell } from "../reactive/index";
 import { Hole } from "lighterhtml";
 
 const noop = () => {};
@@ -89,7 +89,7 @@ const Component = (props, init, css) => {
       this.subscriptions = [];
       this.destroy = noop;
       this.attachShadow({ mode: "open" });
-      this.me = new Cell(null);
+      this.me = makeCell(null);
       this._setupState(propConfigs);
       this._setupAttributes(observedAttributes);
       this._setupProperties(propConfigs);
@@ -175,7 +175,7 @@ const Component = (props, init, css) => {
     _setupState(propConfigs) {
       this.state = {};
       propConfigs.forEach((propConfig) => {
-        this.state[propConfig.name] = new Cell(propConfig.default);
+        this.state[propConfig.name] = makeCell(propConfig.default);
       });
     }
 
