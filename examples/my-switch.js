@@ -1,5 +1,5 @@
 import makeElement from "../src/component";
-import { map, subscribe } from "../src/callbags";
+import { map } from "../src/cell";
 
 const KEYCODES = {
   ENTER: 13,
@@ -14,7 +14,7 @@ const Element = makeElement(
     checked: { default: false },
     label: {},
   },
-  function* ({ disabled, checked, label }, html, { emit }) {
+  function ({ disabled, checked, label }, html, { emit }) {
     const toggleChecked = () => {
       if (!disabled.get()) {
         emit("checked-changed", checked);
@@ -33,14 +33,12 @@ const Element = makeElement(
     };
 
     const labelId = `label-${count}`;
-    const ariaLabelledBy = map((label) => (!label ? labelId : null))(label);
-    const ariaDescribedBy = map((label) => (!label ? labelId : null))(label);
-    const ariaLabel = map((label) => label || null)(label);
-    const ariaDisabled = map((disabled) => disabled || null)(disabled);
-    const tabIndex = map((disabled) => (disabled ? -1 : 0))(disabled);
-    const labelStyle = map((label) => (!label ? { marginRight: "10px" } : {}))(
-      label
-    );
+    const ariaLabelledBy = map((label) => (!label ? labelId : null), label);
+    const ariaDescribedBy = map((label) => (!label ? labelId : null), label);
+    const ariaLabel = map((label) => label || null, label);
+    const ariaDisabled = map((disabled) => disabled || null, disabled);
+    const tabIndex = map((disabled) => (disabled ? -1 : 0), disabled);
+    const labelStyle = map((label) => (!label ? { marginRight: "10px" } : {}), label);
 
     count++;
 

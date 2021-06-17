@@ -1,4 +1,3 @@
-import { subscribe } from "./callbags";
 import Renderer from "./renderer";
 import Cell from "./cell";
 import { Hole } from "lighterhtml";
@@ -26,16 +25,16 @@ const syncCells = (cell1, cell2) => {
   let ignoreUpdate = false;
 
   return pipe(
-    subscribe((a) => {
+    cell2.subscribe((a) => {
       ignoreUpdate = true;
       cell1.set(a);
       ignoreUpdate = false;
-    })(cell2),
-    subscribe((a) => {
+    }),
+    cell1.subscribe((a) => {
       if (!ignoreUpdate) {
         cell2.set(a);
       }
-    })(cell1)
+    })
   );
 };
 
@@ -61,6 +60,11 @@ const makePropMap = (props) =>
     ])
   );
 
+const supportsAdoptingStyleSheets =
+  window.ShadowRoot &&
+  "adoptedStyleSheets" in Document.prototype &&
+  "replace" in CSSStyleSheet.prototype;
+
 const createStyleSheet = (styles) => {
   const sheet = new CSSStyleSheet();
   sheet.replaceSync(styles);
@@ -85,9 +89,10 @@ const Component = (props, init, css) => {
       this.subscriptions = [];
       this.destroy = noop;
       this.attachShadow({ mode: "open" });
+      this.me = new Cell(null);
       this._setupState(propConfigs);
-      this._setupProperties(propConfigs);
       this._setupAttributes(observedAttributes);
+      this._setupProperties(propConfigs);
     }
 
     static get observedAttributes() {
@@ -98,7 +103,7 @@ const Component = (props, init, css) => {
       if (this._internalAttributeChange) {
         return;
       }
-
+      
       if (propMap.get(name).attr.parse === Boolean) {
         this.state[name].set(this.hasAttribute(name));
       } else {
@@ -107,7 +112,6 @@ const Component = (props, init, css) => {
     }
 
     connectedCallback() {
-      this._setupStyles(css);
       this._render();
     }
 
@@ -149,23 +153,29 @@ const Component = (props, init, css) => {
 
     _setupAttributes(attributeNames) {
       attributeNames.forEach((name) => {
-        const unsubscribe = subscribe((val) => {
+        const subscription = this.state[name].subscribe((val) => {
           this._setAttribute(name, val);
-        })(this.state[name]);
-        this.subscriptions.push(unsubscribe);
+        });
+        this.subscriptions.push(subscription.unsubscribe);
       });
     }
 
     _setupStyles(styles) {
-      if (styles) {
+      if (!styles) return;
+
+      if (supportsAdoptingStyleSheets) {
         this.shadowRoot.adoptedStyleSheets = [createStyleSheet(styles)];
+      } else {
+        const style = document.createElement("style");
+        style.textContent = styles;
+        this.shadowRoot.appendChild(style);
       }
     }
 
     _setupState(propConfigs) {
       this.state = {};
       propConfigs.forEach((propConfig) => {
-        this.state[propConfig.name] = Cell(propConfig.default);
+        this.state[propConfig.name] = new Cell(propConfig.default);
       });
     }
 
@@ -181,7 +191,7 @@ const Component = (props, init, css) => {
       });
       let result = init(this.state, html, {
         emit: this._emit.bind(this),
-        root: this.shadowRoot,
+        root: this.me,
         context: this,
       });
       const values =
@@ -207,6 +217,8 @@ const Component = (props, init, css) => {
       }
 
       render(this.shadowRoot, template);
+      this._setupStyles(css);
+      this.me.set(this.shadowRoot);
     }
   };
 };

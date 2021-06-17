@@ -1,16 +1,6 @@
 import * as R from "ramda";
-import { pipe, combine, map } from "../src/callbags";
 import makeElement from "../src/component";
-import Cell from "../src/Cell";
-
-const createRef = () => {
-  const ref = Cell(null);
-  const refSetter = (el) => {
-    ref.set(el);
-  };
-
-  return [ref, refSetter];
-};
+import { combineLatest, map } from "../src/cell";
 
 const Element = makeElement(
   {
@@ -18,12 +8,9 @@ const Element = makeElement(
     count: { default: 0 },
     disabled: { default: false },
   },
-  function* ({ count, multiplier, disabled }, html, { emit, context }) {
+  function ({ count, multiplier, disabled }, html, { emit }) {
     // Computed property
-    const total = pipe(
-      combine(count, multiplier),
-      map(([a, b]) => a * b)
-    );
+    const total = map(([a, b]) => a * b, combineLatest(count, multiplier));
     const increment = () => {
       count.update(R.inc);
       emit("count-changed", count.get());
@@ -32,14 +19,12 @@ const Element = makeElement(
       count.update(R.dec);
       emit("count-changed", count.get());
     };
-    console.log(context.querySelector("decrement"));
+    const toggleDisabled = () => disabled.update(R.not);
 
     return html`
-      <button part="decrement" ?disabled=${disabled} onclick=${decrement}>
-        -
-      </button>
+      <button ?disabled=${disabled} onclick=${decrement}>-</button>
       <button ?disabled=${disabled} onclick=${increment}>+</button>
-      <button onclick=${() => disabled.update(R.not)}>Toggle Disabled</button>
+      <button onclick=${toggleDisabled}>Toggle Disabled</button>
       <div>Count: ${count}</div>
       <div>Multiplier: ${multiplier}</div>
       <div>Total: ${total}</div>

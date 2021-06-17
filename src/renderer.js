@@ -1,6 +1,4 @@
 import { custom } from "lighterhtml";
-import { subscribe } from "./callbags";
-import Cell from "./cell";
 
 const Renderer = (subscriptionAdded) =>
   custom({
@@ -8,8 +6,8 @@ const Renderer = (subscriptionAdded) =>
       const cb = callback.call({ type: "html" }, node, childNodes);
 
       return (value) => {
-        if (value.type === Cell) {
-          subscriptionAdded(subscribe(cb)(value));
+        if (typeof value.subscribe === 'function') {
+          subscriptionAdded(value.subscribe(cb).unsubscribe);
         } else {
           cb(value);
         }
@@ -19,8 +17,8 @@ const Renderer = (subscriptionAdded) =>
       const cb = callback.call({ type: "html" }, node, name, original);
 
       return (value) => {
-        if (value.type === Cell) {
-          subscriptionAdded(subscribe(cb)(value));
+        if (typeof value.subscribe === 'function') {
+          subscriptionAdded(value.subscribe(cb).unsubscribe);
         } else {
           cb(value);
         }

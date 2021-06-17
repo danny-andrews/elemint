@@ -3,7 +3,8 @@ const KEYCODES = {
   SPACE: 32,
 };
 
-const template = document.createElement('template');
+const template = document.createElement("template");
+
 template.innerHTML = `
   <style>
     :host {
@@ -81,14 +82,14 @@ let __count = 0;
 export class GenericSwitch extends HTMLElement {
   constructor() {
     super();
-    this.attachShadow({ mode: 'open' });
+    this.attachShadow({ mode: "open" });
     this.shadowRoot.appendChild(template.content.cloneNode(true));
     this.__onClick = this.__onClick.bind(this);
     this.__onKeyDown = this.__onKeyDown.bind(this);
   }
 
   static get observedAttributes() {
-    return ['disabled', 'checked', 'label'];
+    return ["disabled", "checked", "label"];
   }
 
   connectedCallback() {
@@ -102,19 +103,19 @@ export class GenericSwitch extends HTMLElement {
     this.__track.id = `track-${__count}`;
     this.__thumb.id = `thumb-${__count}`;
 
-    this.addEventListener('click', this.__onClick);
-    this.addEventListener('keydown', this.__onKeyDown);
-    this.__button.setAttribute('role', 'switch');
+    this.addEventListener("click", this.__onClick);
+    this.addEventListener("keydown", this.__onKeyDown);
+    this.__button.setAttribute("role", "switch");
 
-    if (!this.hasAttribute('label')) {
-      this.__button.setAttribute('aria-labelledby', `label-${__count}`);
-      this.__button.setAttribute('aria-describedby', `label-${__count}`);
-      this.__label.style.marginRight = '10px';
+    if (!this.hasAttribute("label")) {
+      this.__button.setAttribute("aria-labelledby", `label-${__count}`);
+      this.__button.setAttribute("aria-describedby", `label-${__count}`);
+      this.__label.style.marginRight = "10px";
     } else {
-      this.__button.setAttribute('aria-label', this.getAttribute('label'));
+      this.__button.setAttribute("aria-label", this.getAttribute("label"));
     }
 
-    this.__checked = this.hasAttribute('checked') || false;
+    this.__checked = this.hasAttribute("checked") || false;
 
     this.__update(false);
     this.__handleDisabled();
@@ -122,28 +123,28 @@ export class GenericSwitch extends HTMLElement {
   }
 
   disconnectedCallback() {
-    this.__button.removeEventListener('click', this.__onClick);
-    this.__button.removeEventListener('keydown', this.__onKeyDown);
+    this.__button.removeEventListener("click", this.__onClick);
+    this.__button.removeEventListener("keydown", this.__onKeyDown);
   }
 
   __handleDisabled() {
-    if (this.hasAttribute('disabled')) {
-      this.setAttribute('disabled', '');
-      this.__button.setAttribute('aria-disabled', 'true');
-      this.__button.removeAttribute('tabindex');
+    if (this.hasAttribute("disabled")) {
+      this.setAttribute("disabled", "");
+      this.__button.setAttribute("aria-disabled", "true");
+      this.__button.removeAttribute("tabindex");
     } else {
-      this.removeAttribute('disabled');
-      this.__button.removeAttribute('aria-disabled');
-      this.__button.setAttribute('tabindex', '0');
+      this.removeAttribute("disabled");
+      this.__button.removeAttribute("aria-disabled");
+      this.__button.setAttribute("tabindex", "0");
     }
   }
 
   __onClick() {
-    if (!this.hasAttribute('disabled')) {
-      if (this.hasAttribute('checked')) {
-        this.removeAttribute('checked');
+    if (!this.hasAttribute("disabled")) {
+      if (this.hasAttribute("checked")) {
+        this.removeAttribute("checked");
       } else {
-        this.setAttribute('checked', '');
+        this.setAttribute("checked", "");
       }
     }
   }
@@ -153,10 +154,10 @@ export class GenericSwitch extends HTMLElement {
       case KEYCODES.SPACE:
       case KEYCODES.ENTER:
         event.preventDefault();
-        if (this.hasAttribute('checked')) {
-          this.removeAttribute('checked');
+        if (this.hasAttribute("checked")) {
+          this.removeAttribute("checked");
         } else {
-          this.setAttribute('checked', '');
+          this.setAttribute("checked", "");
         }
         break;
       default:
@@ -165,25 +166,27 @@ export class GenericSwitch extends HTMLElement {
   }
 
   __update(dispatch) {
-    if (this.__checked && !this.hasAttribute('disabled')) {
-      this.__button.setAttribute('aria-checked', 'true');
-      this.__button.setAttribute('checked', '');
+    if (this.__checked && !this.hasAttribute("disabled")) {
+      this.__button.setAttribute("aria-checked", "true");
+      this.__button.setAttribute("checked", "");
     } else {
-      this.__button.setAttribute('aria-checked', 'false');
-      this.__button.removeAttribute('checked');
+      this.__button.setAttribute("aria-checked", "false");
+      this.__button.removeAttribute("checked");
     }
 
     if (dispatch) {
       const { __checked } = this;
-      this.dispatchEvent(new CustomEvent('checked-changed', { detail: __checked }));
+      this.dispatchEvent(
+        new CustomEvent("checked-changed", { detail: __checked })
+      );
     }
   }
 
   set checked(val) {
     if (val) {
-      this.setAttribute('checked', '');
+      this.setAttribute("checked", "");
     } else {
-      this.removeAttribute('checked');
+      this.removeAttribute("checked");
     }
   }
 
@@ -195,16 +198,16 @@ export class GenericSwitch extends HTMLElement {
     if (!this.__button) return;
     if (newVal !== oldVal) {
       switch (name) {
-        case 'disabled':
+        case "disabled":
           this.__disabled = !this.__disabled;
           this.__handleDisabled();
           break;
-        case 'checked':
+        case "checked":
           this.__checked = !this.__checked;
           this.__update(true);
           break;
-        case 'label':
-          this.__button.setAttribute('aria-label', newVal);
+        case "label":
+          this.__button.setAttribute("aria-label", newVal);
           break;
         default:
           break;
@@ -213,4 +216,4 @@ export class GenericSwitch extends HTMLElement {
   }
 }
 
-customElements.define('generic-switch', GenericSwitch);
+customElements.define("generic-switch", GenericSwitch);
