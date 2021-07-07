@@ -1,4 +1,4 @@
-import Observable, { makeObservable } from "./observable";
+import Observable, { makeObservable } from "./observable.js";
 
 export const combineLatest = (...sources) =>
   Observable((observer) => {
@@ -35,3 +35,20 @@ export const combineLatest = (...sources) =>
 
     return () => subscriptions.forEach((s) => s.unsubscribe());
   });
+
+export const syncCells = (cell1, cell2) => {
+  let ignoreUpdate = false;
+
+  return pipe(
+    cell2.subscribe((a) => {
+      ignoreUpdate = true;
+      cell1.set(a);
+      ignoreUpdate = false;
+    }),
+    cell1.subscribe((a) => {
+      if (!ignoreUpdate) {
+        cell2.set(a);
+      }
+    })
+  );
+};

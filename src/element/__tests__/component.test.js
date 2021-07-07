@@ -1,6 +1,6 @@
 import t from "tap";
-// Types: Number, Boolean, Object
-// attr values: false, true, String
+// Types: String | Number | Boolean | Object
+// attr values: false | true | String
 
 const propCases = {
   // Attr defaults to true, type defaults to String
@@ -13,13 +13,12 @@ const propCases = {
   name: { attr: false },
   // Attr string
   name: { attr: "attr-name" },
-
   // Number default
   count: { default: 0 },
   // Boolean default
   enabled: { default: false },
 };
 
-t.test('passes', async (is) => {
+t.test("passes", async (is) => {
   is.same(1, 1);
 });

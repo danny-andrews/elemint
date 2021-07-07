@@ -47,18 +47,20 @@ t.test("Cell works with map", (is) => {
   const cell = makeCell(2);
   const values = [];
 
-  const newCell = map((a) => a * 2, cell);
+  pipeline(
+    cell,
+    map((a) => a * 2),
+    subscribe({
+      next: (val) => {
+        values.push(val);
+      },
+      complete: () => {
+        is.same([4, 14], values);
+        is.end();
+      },
+    })
+  )
 
-  subscribe({
-    next: (val) => {
-      values.push(val);
-    },
-    complete: () => {
-      is.same([4, 6], values);
-      is.end();
-    },
-  })(newCell);
-
-  newCell.set(7);
-  newCell.complete();
+  cell.set(7);
+  cell.complete();
 });

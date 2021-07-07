@@ -1,42 +1,7 @@
-import Renderer from "../renderer/renderer";
-import { makeCell } from "../reactive/index";
 import { Hole } from "lighterhtml";
-
-const noop = () => {};
-
-const last = (arr) => arr[arr.length - 1];
-
-const pipe = (...fns) => (x) => fns.reduce((v, f) => f(v), x);
-
-const generatorToArray = (generator) => {
-  let array = [];
-  let result;
-  while (true) {
-    result = generator.next();
-    array.push(result.value);
-    if (result.done) {
-      break;
-    }
-  }
-  return array;
-};
-
-const syncCells = (cell1, cell2) => {
-  let ignoreUpdate = false;
-
-  return pipe(
-    cell2.subscribe((a) => {
-      ignoreUpdate = true;
-      cell1.set(a);
-      ignoreUpdate = false;
-    }),
-    cell1.subscribe((a) => {
-      if (!ignoreUpdate) {
-        cell2.set(a);
-      }
-    })
-  );
-};
+import { html, render as renderTemplate } from "../renderer/renderer.js";
+import { makeCell, syncCells } from "../reactive/index.js";
+import { isCell, isObservable, supportsAdoptingStyleSheets } from "../util.js";
 
 const parserForValue = (value) =>
   value === undefined || typeof value === "string" ? String : value.constructor;
@@ -52,27 +17,19 @@ const normalizePropConfig = (propConfig) =>
         },
       };
 
-const makePropMap = (props) =>
-  new Map(
-    Object.entries(props).map(([name, config]) => [
-      name,
-      normalizePropConfig(config),
-    ])
-  );
-
-const supportsAdoptingStyleSheets =
-  window.ShadowRoot &&
-  "adoptedStyleSheets" in Document.prototype &&
-  "replace" in CSSStyleSheet.prototype;
-
 const createStyleSheet = (styles) => {
   const sheet = new CSSStyleSheet();
   sheet.replaceSync(styles);
   return sheet;
 };
 
-const Component = (props, init, css) => {
-  const propMap = makePropMap(props);
+const Component = ({ props, render, css }) => {
+  const propMap = new Map(
+    Object.entries(props).map(([name, config]) => [
+      name,
+      normalizePropConfig(config),
+    ])
+  );
 
   const propConfigs = Array.from(propMap.entries()).map(([key, value]) => ({
     name: key,
@@ -86,10 +43,11 @@ const Component = (props, init, css) => {
   return class extends HTMLElement {
     constructor() {
       super();
-      this.subscriptions = [];
-      this.destroy = noop;
+
+      this._subscriptions = [];
+      this._root = makeCell(null);
+
       this.attachShadow({ mode: "open" });
-      this.me = makeCell(null);
       this._setupState(propConfigs);
       this._setupAttributes(observedAttributes);
       this._setupProperties(propConfigs);
@@ -103,11 +61,11 @@ const Component = (props, init, css) => {
       if (this._internalAttributeChange) {
         return;
       }
-      
+
       if (propMap.get(name).attr.parse === Boolean) {
-        this.state[name].set(this.hasAttribute(name));
+        this._state[name].set(this.hasAttribute(name));
       } else {
-        this.state[name].set(propMap.get(name).attr.parse(newVal));
+        this._state[name].set(propMap.get(name).attr.parse(newVal));
       }
     }
 
@@ -116,8 +74,7 @@ const Component = (props, init, css) => {
     }
 
     disconnectedCallback() {
-      this.subscriptions.forEach((dispose) => dispose());
-      this.destroy();
+      this._destroy();
     }
 
     _setAttribute(name, val) {
@@ -140,23 +97,23 @@ const Component = (props, init, css) => {
       propConfigs.forEach(({ name }) => {
         Object.defineProperty(this, name, {
           set: (value) => {
-            if (value.get && value.set && value.update) {
-              this.subscriptions.push(syncCells(value, this.state[name]));
+            if (isCell(value)) {
+              this._subscriptions.push(syncCells(value, this._state[name]));
             } else {
-              this.state[name].set(value);
+              this._state[name].set(value);
             }
           },
-          get: this.state[name].get,
+          get: this._state[name].get,
         });
       });
     }
 
     _setupAttributes(attributeNames) {
       attributeNames.forEach((name) => {
-        const subscription = this.state[name].subscribe((val) => {
+        const subscription = this._state[name].subscribe((val) => {
           this._setAttribute(name, val);
         });
-        this.subscriptions.push(subscription.unsubscribe);
+        this._subscriptions.push(subscription);
       });
     }
 
@@ -173,9 +130,22 @@ const Component = (props, init, css) => {
     }
 
     _setupState(propConfigs) {
-      this.state = {};
+      this._state = {};
       propConfigs.forEach((propConfig) => {
-        this.state[propConfig.name] = makeCell(propConfig.default);
+        let initialValue;
+        if (this.hasAttribute(propConfig.name)) {
+          if (propConfig.attr.parse === Boolean) {
+            initialValue = true;
+          } else {
+            initialValue = propConfig.attr.parse(
+              this.getAttribute(propConfig.name)
+            );
+          }
+        } else {
+          initialValue = propConfig.default;
+        }
+
+        this._state[propConfig.name] = makeCell(initialValue);
       });
     }
 
@@ -186,39 +156,35 @@ const Component = (props, init, css) => {
     }
 
     _render() {
-      const { html, render } = Renderer((subscription) => {
-        this.subscriptions.push(subscription);
-      });
-      let result = init(this.state, html, {
+      let result = render(this._state, html, {
         emit: this._emit.bind(this),
-        root: this.me,
+        root: this._root,
         context: this,
       });
-      const values =
-        typeof result.next === "function" ? generatorToArray(result) : [result];
-      const actualResult = last(values);
-      const subscriptions = values.slice(0, -1);
-      subscriptions.forEach((sub) => {
-        this.subscriptions.push(sub);
-      });
 
-      const { template, destroy, methods } =
-        actualResult instanceof Hole
-          ? { template: actualResult }
-          : actualResult;
+      const { template, methods } =
+        result instanceof Hole ? { template: result } : result;
 
-      if (destroy) {
-        this.destroy = destroy;
-      }
       if (methods) {
         Object.entries(methods).forEach(([name, fn]) => {
           this[name] = fn;
         });
       }
 
-      render(this.shadowRoot, template);
+      renderTemplate(this.shadowRoot, template);
+
+      // NOTE: This line must come after rendering.
+      this._subscriptions.push(
+        template.values.filter(isObservable).map((value) => value._subscription)
+      );
       this._setupStyles(css);
-      this.me.set(this.shadowRoot);
+      this._root.set(this.shadowRoot);
+    }
+
+    _destroy() {
+      this._subscriptions.forEach((subscription) => {
+        subscription.unsubscribe();
+      });
     }
   };
 };

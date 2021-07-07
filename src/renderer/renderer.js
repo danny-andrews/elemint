@@ -1,29 +1,27 @@
 import { custom } from "lighterhtml";
+import { isObservable } from "../util.js";
 
-const Renderer = (subscriptionAdded) =>
-  custom({
-    any: (callback) => (node, childNodes) => {
-      const cb = callback.call({ type: "html" }, node, childNodes);
+const handleObserver = (callback) => {
+  return (node, ...args) => {
+    const cb = callback.call({ type: "html" }, node, ...args);
+    let oldValue;
 
-      return (value) => {
-        if (typeof value.subscribe === 'function') {
-          subscriptionAdded(value.subscribe(cb).unsubscribe);
-        } else {
-          cb(value);
+    return (newValue) => {
+      if (!isObservable(newValue)) {
+        cb(newValue);
+      } else if (oldValue !== newValue) {
+        if (newValue) {
+          newValue._subscription = newValue.subscribe(cb);
+          oldValue = newValue;
         }
-      };
-    },
-    attribute: (callback) => (node, name, original) => {
-      const cb = callback.call({ type: "html" }, node, name, original);
+      }
+    };
+  };
+};
 
-      return (value) => {
-        if (typeof value.subscribe === 'function') {
-          subscriptionAdded(value.subscribe(cb).unsubscribe);
-        } else {
-          cb(value);
-        }
-      };
-    },
-  });
+const { html, render } = custom({
+  any: handleObserver,
+  attribute: handleObserver,
+});
 
-export default Renderer;
+export { html, render };

@@ -1,6 +1,6 @@
 # Mint Element
 
-Mint Element is a lightweight, reactive way to build web components. No classes, no giant inheritence hierarchies, no compilers, no `this`, no decorators. Just plain functions and reactive variables.
+Mint Element is a lightweight, reactive way to build web components. No classes, no compilers, no `this`, no decorators, no dynamic scoping madness (looking at you, React Hooks). Just plain functions and reactive variables.
 
 ```js
 import makeElement from "mint-element";
@@ -84,6 +84,10 @@ Calmjs
 1. No polyfills assumed or included.
 1. Smaller bundle.
 1. No lifecycle to figure out.
+
+### TODO
+
+1. Don't create a new renderer for each component instance. This is expensive. Find a way to get lighterhtml to unsubscribe from observables when the component is unmounted some other way. Maybe look at how event handlers are handled by lighterhtml.
 
 ## Aside: Google's Best Practices
 

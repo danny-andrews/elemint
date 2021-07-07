@@ -1,5 +1,5 @@
-import makeElement from "../src/element/component";
-import { map } from "../src/reactive/index";
+import makeElement from "../component.js";
+import { map } from "../../reactive/index.js";
 
 const KEYCODES = {
   ENTER: 13,
@@ -8,13 +8,13 @@ const KEYCODES = {
 
 let count = 0;
 
-const Element = makeElement(
-  {
+const Element = makeElement({
+  props: {
     disabled: { default: false },
     checked: { default: false },
     label: {},
   },
-  function ({ disabled, checked, label }, html, { emit }) {
+  render: ({ disabled, checked, label }, html, { emit }) => {
     const toggleChecked = () => {
       if (!disabled.get()) {
         emit("checked-changed", checked);
@@ -38,7 +38,10 @@ const Element = makeElement(
     const ariaLabel = map((label) => label || null, label);
     const ariaDisabled = map((disabled) => disabled || null, disabled);
     const tabIndex = map((disabled) => (disabled ? -1 : 0), disabled);
-    const labelStyle = map((label) => (!label ? { marginRight: "10px" } : {}), label);
+    const labelStyle = map(
+      (label) => (!label ? { marginRight: "10px" } : {}),
+      label
+    );
 
     count++;
 
@@ -69,7 +72,7 @@ const Element = makeElement(
       },
     };
   },
-  `
+  css: `
     :host {
       display: flex;
       align-items: center;
@@ -121,7 +124,7 @@ const Element = makeElement(
     label[part="label"] {
       user-select: none;
     }
-  `
-);
+  `,
+});
 
 customElements.define("my-switch", Element);

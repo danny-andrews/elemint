@@ -1,11 +1,18 @@
+import { noop } from "../util.js";
+
 const normalizeObserver = (observer = {}, ...rest) =>
   typeof observer === "function"
     ? {
         next: observer,
-        error: rest[1],
-        complete: rest[2],
+        error: rest[1] || noop,
+        complete: rest[2] || noop,
       }
     : observer;
+
+export const makeCell = (value) =>
+  Cell((emitter) => {
+    emitter.next(value);
+  });
 
 const Cell = (emitterFn) => {
   let isClosed = false;
@@ -17,6 +24,7 @@ const Cell = (emitterFn) => {
     observers.forEach((observer) => {
       observer.complete();
     });
+    observers.clear();
   };
 
   const set = (value) => {
@@ -64,12 +72,8 @@ const Cell = (emitterFn) => {
     update,
     complete,
     constructor: Cell,
+    of: makeCell,
   };
 };
-
-export const makeCell = (value) =>
-  Cell((emitter) => {
-    emitter.next(value);
-  });
 
 export default Cell;

@@ -1,4 +1,4 @@
-export { default as Cell, makeCell } from "./cell";
-export { default as Observable, makeObservable } from "./observable";
-export * from "./combinators";
-export * from "./operators";
+export { default as Cell, makeCell } from "./cell.js";
+export { default as Observable, makeObservable } from "./observable.js";
+export * from "./combinators.js";
+export * from "./operators.js";

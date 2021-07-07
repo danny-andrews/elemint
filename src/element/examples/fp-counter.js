@@ -1,14 +1,14 @@
 import * as R from "ramda";
-import makeElement from "../src/element/component";
-import { combineLatest, map } from "../src/reactive/index";
+import makeElement from "../component.js";
+import { combineLatest, map } from "../../reactive/index.js";
 
-const Element = makeElement(
-  {
+const Element = makeElement({
+  props: {
     multiplier: { default: 1 },
     count: { default: 0 },
     disabled: { default: false },
   },
-  function ({ count, multiplier, disabled }, html, { emit }) {
+  render: ({ count, multiplier, disabled }, html, { emit }) => {
     // Computed property
     const total = map(([a, b]) => a * b, combineLatest(count, multiplier));
     const increment = () => {
@@ -29,7 +29,7 @@ const Element = makeElement(
       <div>Multiplier: ${multiplier}</div>
       <div>Total: ${total}</div>
     `;
-  }
-);
+  },
+});
 
 customElements.define("fp-counter", Element);
