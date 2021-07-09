@@ -9,10 +9,10 @@ const badgeReporter = (...args) => {
 };
 
 export default {
-  input: "./src/element/examples/counter.js",
+  input: "./src/element/component.js",
   output: {
     format: "iife",
-    dir: "public/build",
+    dir: "build",
     entryFileNames: "[name].js",
   },
   plugins: [

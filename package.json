@@ -1,6 +1,8 @@
 {
   "scripts": {
-    "build": "rollup --config",
+    "build:clean": "rm -r build; rm -r docs/*",
+    "build:docs": "rollup --config",
+    "build": "npm run build:clean; npm run build:docs",
     "dev": "snowpack dev --reload --open=none",
     "test": "tap --no-coverage --reporter=dot"
   },
