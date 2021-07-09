@@ -1,25 +1,27 @@
-// import resolve from "@rollup/plugin-node-resolve";
-// import commonjs from "@rollup/plugin-commonjs";
-// import { terser } from "rollup-plugin-terser";
-// import analyze from "rollup-plugin-analyzer";
-// import filesize from "rollup-plugin-filesize";
+import resolve from "@rollup/plugin-node-resolve";
+import analyze from "rollup-plugin-analyzer";
+import filesize from "rollup-plugin-filesize";
+import makeBadge from "./scripts/make-badge";
 
-// export default {
-//   input: "./examples/counter.js",
-//   output: {
-//     format: "iife",
-//     dir: "public/build",
-//     entryFileNames: "[name].js",
-//   },
-//   plugins: [
-//     resolve({ browser: true }),
-//     commonjs(),
-//     terser(),
-//     analyze({ summaryOnly: true }),
-//     filesize({
-//       showMinifiedSize: false,
-//       showGzippedSize: false,
-//       showBrotliSize: true,
-//     }),
-//   ],
-// };
+const badgeReporter = (...args) => {
+  const [, , { minSize, gzipSize }] = args;
+  return makeBadge({ minSize, gzipSize });
+};
+
+export default {
+  input: "./src/element/examples/counter.js",
+  output: {
+    format: "iife",
+    dir: "public/build",
+    entryFileNames: "[name].js",
+  },
+  plugins: [
+    resolve({ browser: true }),
+    analyze({ summaryOnly: true }),
+    filesize({
+      showMinifiedSize: true,
+      showGzippedSize: true,
+      reporter: ["boxen", badgeReporter],
+    }),
+  ],
+};

@@ -1,5 +1,7 @@
 # Mint Element
 
+![](docs/size-badge.svg)
+
 Mint Element is a lightweight, reactive way to build web components. No classes, no compilers, no `this`, no decorators, no dynamic scoping madness (looking at you, React Hooks). Just plain functions and reactive variables.
 
 ```js
@@ -62,6 +64,13 @@ type EventOptions = {
   composed: Boolean
 }
 ```
+
+## Requirements
+
+- ES6 Symbols
+- ShadowDOM
+- Custom Elements
+- Constructable Stylesheets
 
 ## Under the Hood
 

@@ -1,4 +1,4 @@
-import NativeObservable from "core-js-pure/features/observable/index.js";
+import NativeObservable from "./native-observable";
 
 export const makeObservable = (value) =>
   Observable((emitter) => {
