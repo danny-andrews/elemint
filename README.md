@@ -7,14 +7,21 @@ Mint Element is a lightweight, reactive way to build web components. No classes,
 ```js
 import makeElement from "mint-element";
 
-const Counter = makeElement(
-  [{ name: "count", default: 0 }],
-  ({ count }, { html }) => html`
-    <button onclick=${() => count.update((a) => a - 1)}>-</button>
-    <button onclick=${() => count.update((a) => a + 1)}>+</button>
-    <div>Count: ${count}</div>
-  `
-);
+const Counter = makeElement({
+  props: {
+    count: { default: 0 },
+  },
+  render: ({ count }, html) => {
+    const decrement = () => count.update((a) => a - 1);
+    const increment = () => count.update((a) => a + 1);
+
+    return html`
+      <button onclick=${decrement}>-</button>
+      <button onclick=${increment}>+</button>
+      <div>Count: ${count}</div>
+    `;
+  },
+});
 
 customElements.define("my-counter", Counter);
 ```
@@ -23,40 +30,45 @@ customElements.define("my-counter", Counter);
 
 ### Property/Attributes
 
-The main export takes a
-
 ### Templates
 
 ### Styles
 
 ### Events
 
-### Other
+### Types
 
 ```ts
-makeElement :: (propConfigs: PropConfig[], render: (props: Props, context: Context) => HTML, styles?: string)
+makeElement :: ({ props: PropConfig[], render: (props: Props, html: fn, context: Context) => HTML, css: string })
+
 type Primitive = boolean | number | string;
+
 type PropConfig = {
   name: string,
   default?: Primitive,
   attr?: true | false | string
 }
+
 type Props = {
   [string]: Cell<any>
 }
+
 type Cell<T> = {
   set: (value: T) => void,
   update: ((value: T) => T) => void,
   get: () => T,
   subscribe: (value: T => void) => (unsubscribe: () => void)
 }
+
 type Context = {
   html: fn,
   emit: EventEmitter,
   root: HTMLElement,
   context: HTMLElement
 }
+
 type EventEmitter = (name: string, detail?: any, options?: EventOptions) => Event
+
 type EventOptions = {
   detail: any,
   bubbles: Boolean,
@@ -72,6 +84,8 @@ type EventOptions = {
 - Custom Elements
 - Constructable Stylesheets
 
+If your target browser does not support these features, you will need to ship your own polyfills for them.
+
 ## Under the Hood
 
 This core of this library is just a factory function which takes some configuration and a render function, and returns a CustomElement class.
@@ -84,8 +98,8 @@ Anytime the cell's value changes, only the corresponding part of the DOM is upda
 
 ## Prior Art
 
-LighterHTML
-Calmjs
+- [lighterHTML](https://github.com/WebReflection/lighterhtml)
+- [calmm-js](https://github.com/calmm-js)
 
 ## Differences to LitElement
 
@@ -94,18 +108,14 @@ Calmjs
 1. Smaller bundle.
 1. No lifecycle to figure out.
 
-### TODO
-
-1. Don't create a new renderer for each component instance. This is expensive. Find a way to get lighterhtml to unsubscribe from observables when the component is unmounted some other way. Maybe look at how event handlers are handled by lighterhtml.
-
 ## Aside: Google's Best Practices
 
-Google has a list of best practices for building web components, almost all of which are handled for you or simplified by mint-element.
+Google has a list of [best practices](https://developers.google.com/web/fundamentals/web-components/best-practices) for building web components, almost all of which are handled for you or simplified by mint-element.
 
 ### Handled by mint-element
 
-1. Create shadow root to encapsulate styles.
-1. Create shadow root in the constructor.
+1. Create a shadow root to encapsulate styles.
+1. Create your shadow root in the constructor.
 1. Place any children the element creates into its shadow root.
 1. Do not override author-set, global attributes.
 
@@ -123,7 +133,7 @@ Google has a list of best practices for building web components, almost all of w
 1. Do not dispatch events in response to the host setting a property.
 1. Add a :host display style that respects the hidden attribute.
 1. Use `<slot>` to project light DOM children into your shadow DOM.
-1. Set a :host display style (e.g. block, inline-block, flex) unless you prefer the default of inline.
+1. Set a `:host` display style (e.g. `block`, `inline-block`, `flex`) unless you prefer the default of `inline`.
 1. Do not self-apply classes.
 
 ## Limitations
