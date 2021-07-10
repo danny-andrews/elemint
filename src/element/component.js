@@ -49,7 +49,6 @@ const Component = ({ props, render, css }) => {
 
       this.attachShadow({ mode: "open" });
       this._setupState(propConfigs);
-      this._setupAttributes(observedAttributes);
       this._setupProperties(propConfigs);
     }
 
@@ -70,6 +69,7 @@ const Component = ({ props, render, css }) => {
     }
 
     connectedCallback() {
+      this._setupAttributes(observedAttributes);
       this._render();
     }
 
@@ -161,10 +161,8 @@ const Component = ({ props, render, css }) => {
         root: this._root,
         context: this,
       });
-
       const { template, methods } =
         result instanceof Hole ? { template: result } : result;
-
       if (methods) {
         Object.entries(methods).forEach(([name, fn]) => {
           this[name] = fn;
@@ -172,7 +170,6 @@ const Component = ({ props, render, css }) => {
       }
 
       renderTemplate(this.shadowRoot, template);
-
       // NOTE: This line must come after rendering.
       this._subscriptions.push(
         template.values.filter(isObservable).map((value) => value._subscription)

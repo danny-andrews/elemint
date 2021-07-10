@@ -1,4 +1,4 @@
-import NativeObservable from "./native-observable";
+import NativeObservable from "./native-observable.js";
 
 export const makeObservable = (value) =>
   Observable((emitter) => {

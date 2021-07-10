@@ -1,4 +1,3 @@
-import t from "tap";
 // Types: String | Number | Boolean | Object
 // attr values: false | true | String
 
@@ -18,7 +17,3 @@ const propCases = {
   // Boolean default
   enabled: { default: false },
 };
-
-t.test("passes", async (is) => {
-  is.same(1, 1);
-});

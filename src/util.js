@@ -29,5 +29,7 @@ export const noop = () => {};
 
 export const supportsAdoptingStyleSheets =
   window.ShadowRoot &&
-  "adoptedStyleSheets" in Document.prototype &&
-  "replace" in CSSStyleSheet.prototype;
+  "adoptedStyleSheets" in document &&
+  "replace" in CSSStyleSheet;
+
+export const pipeline = (arg, ...fns) => fns.reduce((v, fn) => fn(v), arg);

@@ -1,5 +1,5 @@
-import makeElement from "../component.js";
-import { map } from "../../reactive/index.js";
+import makeElement from "../../component.js";
+import { map } from "../../../reactive/index.js";
 
 const KEYCODES = {
   ENTER: 13,
@@ -127,4 +127,4 @@ const Element = makeElement({
   `,
 });
 
-customElements.define("my-switch", Element);
+customElements.define("mint-switch", Element);
