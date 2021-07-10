@@ -1,5 +1,10 @@
-// Types: String | Number | Boolean | Object
-// attr values: false | true | String
+import { test } from "uvu";
+import * as assert from "uvu/assert";
+import makeElement from "../component.js";
+import { renderElement } from "../../test/index.js";
+
+// types :: String | Number | Boolean | Object
+// attr :: false | true | String
 
 const propCases = {
   // Attr defaults to true, type defaults to String
@@ -17,3 +22,29 @@ const propCases = {
   // Boolean default
   enabled: { default: false },
 };
+
+test("empty prop object defaults attr to true and type to String", () => {
+  const Element = makeElement({
+    props: {
+      name: {},
+    },
+    render: (_, html) => html`<div></div>`,
+  });
+  const subject = renderElement(Element);
+
+  subject.name = "stuff";
+  assert.is(subject.getAttribute("name"), "stuff");
+});
+
+test("number default parses numbers", () => {
+  const Element = makeElement({
+    props: {
+      age: { default: 12 },
+    },
+    render: (_, html) => html`<div></div>`,
+  });
+  const subject = renderElement(Element, { age: "22" });
+  assert.is(subject.age, 22);
+});
+
+test.run();

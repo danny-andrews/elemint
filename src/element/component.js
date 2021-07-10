@@ -171,8 +171,10 @@ const Component = ({ props, render, css }) => {
 
       renderTemplate(this.shadowRoot, template);
       // NOTE: This line must come after rendering.
-      this._subscriptions.push(
-        template.values.filter(isObservable).map((value) => value._subscription)
+      this._subscriptions = this._subscriptions.concat(
+        template.values.filter(isObservable).map((value) => {
+          return value._subscription;
+        })
       );
       this._setupStyles(css);
       this._root.set(this.shadowRoot);

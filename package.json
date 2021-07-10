@@ -22,6 +22,7 @@
     "rollup-plugin-analyzer": "^4.0.0",
     "rollup-plugin-filesize": "^9.1.0",
     "snowpack": "^3.7.1",
+    "static-params": "^0.2.1",
     "uvu": "^0.5.1"
   },
   "jest": {

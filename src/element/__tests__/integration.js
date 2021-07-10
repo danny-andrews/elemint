@@ -2,7 +2,7 @@ import { test } from "uvu";
 import * as assert from "uvu/assert";
 import "../../../test-setup.js";
 import makeElement from "../component.js";
-import { render, html } from "../../test/index.js";
+import { renderElement } from "../../test/index.js";
 
 const Element = makeElement({
   props: {
@@ -26,11 +26,8 @@ const Element = makeElement({
   },
 });
 
-customElements.define("mint-counter", Element);
-
 test("renders and stuff", () => {
-  render(document.body, html`<mint-counter count="4"></mint-counter>`);
-  const element = document.querySelector("mint-counter");
+  const element = renderElement(Element, { count: 4 });
   assert.is(element.getAttribute("count"), "4");
   assert.is(element.count, 4);
   element.count = 87;
@@ -43,3 +40,5 @@ test("renders and stuff", () => {
   element.shadowRoot.querySelector('[data-test-id="increment"]').click();
   assert.is(element.getAttribute("count"), "87");
 });
+
+test.run();
