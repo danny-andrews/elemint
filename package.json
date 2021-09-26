@@ -1,13 +1,36 @@
 {
+  "name": "mint-element",
+  "version": "0.0.1",
+  "description": "Create CustomElements using observables.",
+  "keywords": [
+    "custom-elements",
+    "observables",
+    "frp",
+    "currying",
+    "fp"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/danny-andrews/mint-element/"
+  },
+  "license": "MIT",
+  "author": "Danny Andrews <lunde.andrews@gmail.com> (dannyandrews.net)",
+  "sideEffects": false,
+  "type": "module",
+  "module": "./src/index.js",
+  "browser": "./src/index.js",
+  "files": [
+    "src",
+    "build"
+  ],
   "scripts": {
+    "build": "npm run build:clean; npm run build:docs",
     "build:clean": "rm -r build; rm -r docs/*",
     "build:docs": "rollup --config",
-    "build": "npm run build:clean; npm run build:docs",
     "dev": "snowpack dev",
+    "lint": "npx sort-package-json",
     "test": "uvu"
   },
-  "type": "module",
-  "sideEffects": false,
   "dependencies": {
     "lighterhtml": "^4.2.0",
     "ramda": "^0.27.1"
@@ -22,11 +45,11 @@
     "rollup-plugin-analyzer": "^4.0.0",
     "rollup-plugin-filesize": "^9.1.0",
     "snowpack": "^3.7.1",
+    "sort-package-json": "^1.52.0",
     "static-params": "^0.2.1",
     "uvu": "^0.5.1"
   },
-  "jest": {
-    "injectGlobals": false,
-    "transform": {}
+  "engines": {
+    "node": ">=13.2.0"
   }
 }

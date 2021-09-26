@@ -4,7 +4,7 @@ import { makeCell, syncCells } from "../reactive/index.js";
 import { isCell, isObservable, supportsAdoptingStyleSheets } from "../util.js";
 
 const parserForValue = (value) =>
-  value === undefined || typeof value === "string" ? String : value.constructor;
+  value === undefined ? String : value.constructor;
 
 const normalizePropConfig = (propConfig) =>
   propConfig.attr === false
@@ -70,7 +70,9 @@ const Component = ({ props, render, css }) => {
 
     connectedCallback() {
       this._setupAttributes(observedAttributes);
-      this._render();
+      if (render) {
+        this._render();
+      }
     }
 
     disconnectedCallback() {

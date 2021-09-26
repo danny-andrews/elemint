@@ -22,13 +22,13 @@ class Element extends LitElement {
     );
   }
 
-  decrement() {
-    this.count--;
+  increment() {
+    this.count++;
     this.dispatchCountChangedEvent();
   }
 
-  increment() {
-    this.count++;
+  decrement() {
+    this.count--;
     this.dispatchCountChangedEvent();
   }
 

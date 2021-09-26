@@ -23,12 +23,26 @@ const propCases = {
   enabled: { default: false },
 };
 
-test("empty prop object defaults attr to true and type to String", () => {
+// test("accepts attribute name property name in HTML attribute", () => {
+//   const Element = makeElement({
+//     props: {
+//       maxLength: {
+//         attr: { name: "max-length" },
+//       },
+//     },
+//   });
+//   const subject = renderElement(Element, { "max-length": "22" });
+
+//   assert.is(subject.maxLength, 22);
+// });
+
+// test("lowercases property name in HTML attribute");
+
+test("defaults attr to true and type to String when given empty prop object", () => {
   const Element = makeElement({
     props: {
       name: {},
     },
-    render: (_, html) => html`<div></div>`,
   });
   const subject = renderElement(Element);
 
@@ -36,12 +50,11 @@ test("empty prop object defaults attr to true and type to String", () => {
   assert.is(subject.getAttribute("name"), "stuff");
 });
 
-test("number default parses numbers", () => {
+test("parses attribute to Nuber when default is a Number", () => {
   const Element = makeElement({
     props: {
-      age: { default: 12 },
+      age: { default: 50 },
     },
-    render: (_, html) => html`<div></div>`,
   });
   const subject = renderElement(Element, { age: "22" });
   assert.is(subject.age, 22);
