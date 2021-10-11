@@ -1,11 +1,11 @@
-# Mint Element
+# EleMint
 
 ![](docs/size-badge.svg)
 
-Mint Element is a lightweight, reactive way to build web components. No classes, no compilers, no `this`, no decorators, no dynamic scoping madness (looking at you, React Hooks). Just plain functions and reactive variables.
+EleMint is a lightweight, reactive way to build web components. No classes, no compilers, no `this`, no decorators, no dynamic scoping madness (looking at you, React Hooks). Just plain functions and reactive variables.
 
 ```js
-import makeElement from "mint-element";
+import makeElement from "elemint";
 
 const Counter = makeElement({
   props: {
@@ -110,16 +110,16 @@ Anytime the cell's value changes, only the corresponding part of the DOM is upda
 
 ## Aside: Google's Best Practices
 
-Google has a list of [best practices](https://developers.google.com/web/fundamentals/web-components/best-practices) for building web components, almost all of which are handled for you or simplified by mint-element.
+Google has a list of [best practices](https://developers.google.com/web/fundamentals/web-components/best-practices) for building web components, almost all of which are handled for you or simplified by elemint.
 
-### Handled by mint-element
+### Handled by elemint
 
 1. Create a shadow root to encapsulate styles.
 1. Create your shadow root in the constructor.
 1. Place any children the element creates into its shadow root.
 1. Do not override author-set, global attributes.
 
-### Simplified by mint-element
+### Simplified by elemint
 
 1. Always accept primitive data (strings, numbers, booleans) as either attributes or properties.
 1. Aim to keep primitive data attributes and properties in sync, reflecting from property to attribute, and vice versa.

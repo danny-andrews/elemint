@@ -1,5 +1,5 @@
 {
-  "name": "mint-element",
+  "name": "elemint",
   "version": "0.0.1",
   "description": "Create CustomElements using observables.",
   "keywords": [
@@ -11,7 +11,7 @@
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/danny-andrews/mint-element/"
+    "url": "https://github.com/danny-andrews/elemint/"
   },
   "license": "MIT",
   "author": "Danny Andrews <lunde.andrews@gmail.com> (dannyandrews.net)",
