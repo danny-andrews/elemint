@@ -108,16 +108,16 @@ const Element = makeElement({
       background-color: grey;
     }
 
-    div[part="button"]:focus-visible,
-    div[part="button"]:focus:not(:focus-visible) {
+    [part="button"]:focus-visible,
+    [part="button"]:focus:not(:focus-visible) {
       outline: none;
     }
 
-    div[part="button"]:focus .thumb {
+    [part="button"]:focus .thumb {
       box-shadow: var(--generic-switch-focus, 0 0 0 2px #145dce);
     }
 
-    div[part="button"]:focus:not(:focus-visible) .thumb {
+    [part="button"]:focus:not(:focus-visible) .thumb {
       box-shadow: none;
     }
 

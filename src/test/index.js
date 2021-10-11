@@ -1,5 +1,5 @@
-import { render, html } from "../renderer/renderer.js";
 import { asStatic, asTag } from "static-params";
+import { render, html } from "../renderer/renderer.js";
 
 const staticHtml = asTag(html);
 

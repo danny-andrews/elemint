@@ -1,6 +1,6 @@
 import { test } from "uvu";
 import * as assert from "uvu/assert";
-import "../../../test-setup.js";
+import "../../../scripts/test-setup.js";
 import makeElement from "../component.js";
 import { renderElement } from "../../test/index.js";
 

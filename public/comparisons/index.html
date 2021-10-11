@@ -3,11 +3,21 @@
   <head>
     <title>Web Testing</title>
     <script type="module" src="/dist/element/comparisons/index.js"></script>
+    <style>
+      body > * + * {
+        margin-top: 1rem;
+      }
+
+      body > * {
+        display: block;
+      }
+    </style>
   </head>
   <body>
     <mint-counter></mint-counter>
     <lit-counter></lit-counter>
     <mint-temp-converter></mint-temp-converter>
     <lit-temp-converter></lit-temp-converter>
+    <mint-switch></mint-switch>
   </body>
 </html>

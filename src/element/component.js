@@ -1,5 +1,5 @@
-import { Hole } from "lighterhtml";
 import { html, render as renderTemplate } from "../renderer/renderer.js";
+import { Hole } from "lighterhtml";
 import { makeCell, syncCells } from "../reactive/index.js";
 import { isCell, isObservable, supportsAdoptingStyleSheets } from "../util.js";
 
