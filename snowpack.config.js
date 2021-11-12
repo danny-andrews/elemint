@@ -4,7 +4,4 @@ export default {
     public: "/",
     src: "/dist",
   },
-  devOptions: {
-    open: "none",
-  },
 };
