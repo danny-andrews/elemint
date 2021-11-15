@@ -3,11 +3,11 @@ import { Hole } from "lighterhtml";
 import { makeCell, syncCells } from "./reactive/index.js";
 import { isCell, isObservable, supportsAdoptingStyleSheets } from "./util.js";
 
-const parserForValue = (value) =>
-  value === undefined ? String : value.constructor;
+const normalizePropConfig = (propConfig) => {
+  const parserForValue = (value) =>
+    value === undefined ? String : value.constructor;
 
-const normalizePropConfig = (propConfig) =>
-  propConfig.attr === false
+  return propConfig.attr === false
     ? propConfig
     : {
         ...propConfig,
@@ -16,6 +16,7 @@ const normalizePropConfig = (propConfig) =>
           ...(propConfig.attr || {}),
         },
       };
+};
 
 const createStyleSheet = (styles) => {
   const sheet = new CSSStyleSheet();
@@ -23,7 +24,7 @@ const createStyleSheet = (styles) => {
   return sheet;
 };
 
-const Component = ({ props, render, css }) => {
+const Component = ({ props = {}, render, css }) => {
   const propMap = new Map(
     Object.entries(props).map(([name, config]) => [
       name,

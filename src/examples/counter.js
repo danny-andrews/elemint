@@ -1,5 +1,5 @@
 import * as R from "ramda";
-import makeElement from "../element/component.js";
+import makeElement from "../make-element";
 import { combineLatest, map } from "../reactive/index.js";
 
 const Element = makeElement({
