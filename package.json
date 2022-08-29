@@ -33,14 +33,17 @@
   },
   "dependencies": {
     "lighterhtml": "^4.2.0",
-    "ramda": "^0.27.1"
+    "ramda": "^0.27.1",
+    "rxjs": "^7.5.6"
   },
   "devDependencies": {
+    "@most/core": "^1.6.1",
     "@rollup/plugin-commonjs": "^17.1.0",
     "@rollup/plugin-node-resolve": "^11.2.0",
     "badge-up": "^3.0.0",
     "jsdom": "^16.6.0",
     "lit-element": "^2.5.1",
+    "most": "^1.9.0",
     "rollup": "^2.39.0",
     "rollup-plugin-analyzer": "^4.0.0",
     "rollup-plugin-filesize": "^9.1.0",

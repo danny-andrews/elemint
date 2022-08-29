@@ -5,13 +5,14 @@ export const makeObservable = (value) =>
     emitter.next(value);
   });
 
-const Observable = (emitterFn) => {
-  const observable = new NativeObservable(emitterFn);
+const Observable = (subscriber) => {
+  const observable = new NativeObservable(subscriber);
+  const lift = (fn) => fn(observable, subscriber);
 
   return {
     subscribe: observable.subscribe.bind(observable),
     constructor: Observable,
-    of: makeObservable,
+    lift,
   };
 };
 

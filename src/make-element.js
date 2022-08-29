@@ -1,7 +1,10 @@
 import { html, render as renderTemplate } from "./renderer.js";
 import { Hole } from "lighterhtml";
-import { makeCell, syncCells } from "./reactive/index.js";
+import { makeCell, syncCells, filter } from "./reactive/index.js";
 import { isCell, isObservable, supportsAdoptingStyleSheets } from "./util.js";
+
+const skip = (num, observable) =>
+  filter((_, index) => index >= num, observable);
 
 const normalizePropConfig = (propConfig) => {
   const parserForValue = (value) =>
@@ -159,9 +162,21 @@ const Component = ({ props = {}, render, css }) => {
     }
 
     _render() {
+      const root = skip(1, this._root);
+      root.onMount = (fn) => {
+        let tearDown;
+        root.subscribe({
+          next: (node) => {
+            tearDown = fn(node) || (() => {});
+          },
+          complete: () => {
+            tearDown();
+          },
+        });
+      };
       let result = render(this._state, html, {
         emit: this._emit.bind(this),
-        root: this._root,
+        root,
         context: this,
       });
       const { template, methods } =
@@ -184,6 +199,7 @@ const Component = ({ props = {}, render, css }) => {
     }
 
     _destroy() {
+      this._root.complete();
       this._subscriptions.forEach((subscription) => {
         subscription.unsubscribe();
       });

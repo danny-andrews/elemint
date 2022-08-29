@@ -6,12 +6,31 @@ const handleObserver = (callback) => {
     const cb = callback.call({ type: "html" }, node, ...args);
     let oldValue;
 
+    const [attrName] = args;
     return (newValue) => {
       if (!isObservable(newValue)) {
         cb(newValue);
       } else if (oldValue !== newValue) {
         if (newValue) {
-          newValue._subscription = newValue.subscribe(cb);
+          const inputListener = (event) => {
+            const Type = newValue.get().constructor;
+            newValue.set(Type(event.target.value));
+          };
+          const isInputValue =
+            node.nodeName === "INPUT" && attrName === "value";
+          if (isInputValue) {
+            node.addEventListener("input", inputListener);
+          }
+          const subscription = newValue.subscribe(cb);
+          newValue._subscription = {
+            unsubscribe: () => {
+              subscription.unsubscribe();
+              if (isInputValue) {
+                node.removeEventListener("input", inputListener);
+              }
+            },
+          };
+
           oldValue = newValue;
         }
       }
