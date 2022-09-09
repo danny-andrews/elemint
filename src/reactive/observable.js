@@ -12,6 +12,7 @@ const Observable = (subscriber) => {
   return {
     subscribe: observable.subscribe.bind(observable),
     constructor: Observable,
+    of: Observable,
     lift,
   };
 };

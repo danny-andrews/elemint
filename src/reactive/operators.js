@@ -2,13 +2,17 @@ import { curryN } from "ramda";
 import Observable from "./observable.js";
 
 export const scan = curryN(3, (fn, initialValue, observable) => {
-  let acc = initialValue;
-  let index = 0;
   return Observable((observer) => {
+    let acc = initialValue;
+    let index = 0;
     observer.next(initialValue);
-    observable.subscribe((value) => {
-      acc = fn(acc, value, index++);
-      observer.next(acc);
+    observable.subscribe({
+      next: (value) => {
+        acc = fn(acc, value, index++);
+        observer.next(acc);
+      },
+      error: observer.error.bind(observer),
+      complete: observer.complete.bind(observer),
     });
   });
 });
@@ -36,8 +40,8 @@ export const skipWhile = curryN(2, (predicate, observable) => {
 });
 
 export const map = curryN(2, (fn, observable) => {
-  let index = 0;
-  return Observable((observer) =>
+  return Observable((observer) => {
+    let index = 0;
     observable.subscribe({
       next: (value) => {
         try {
@@ -49,13 +53,13 @@ export const map = curryN(2, (fn, observable) => {
       },
       error: observer.error.bind(observer),
       complete: observer.complete.bind(observer),
-    })
-  );
+    });
+  });
 });
 
 export const filter = curryN(2, (fn, observable) => {
-  let index = 0;
-  return Observable((emitter) =>
+  return Observable((emitter) => {
+    let index = 0;
     observable.subscribe({
       next: (value) => {
         try {
@@ -67,9 +71,12 @@ export const filter = curryN(2, (fn, observable) => {
       },
       error: emitter.error.bind(emitter),
       complete: emitter.complete.bind(emitter),
-    })
-  );
+    });
+  });
 });
+
+export const skip = (num, observable) =>
+  filter((_, index) => index >= num, observable, observable);
 
 export const forEach = curryN(
   2,
@@ -106,8 +113,8 @@ export const chain = curryN(2, (fn, observable) => {
   return Observable((observer) => {
     let subscription;
     observable.subscribe({
-      next: (node) => {
-        subscription = fn(node).subscribe((event) => {
+      next: (val) => {
+        subscription = fn(val).subscribe((event) => {
           observer.next(event);
         });
       },

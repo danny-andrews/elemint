@@ -1,10 +1,7 @@
 import { html, render as renderTemplate } from "./renderer.js";
 import { Hole } from "lighterhtml";
-import { makeCell, syncCells, filter } from "./reactive/index.js";
+import { makeCell, syncCells, skip } from "./reactive/index.js";
 import { isCell, isObservable, supportsAdoptingStyleSheets } from "./util.js";
-
-const skip = (num, observable) =>
-  filter((_, index) => index >= num, observable);
 
 const normalizePropConfig = (propConfig) => {
   const parserForValue = (value) =>

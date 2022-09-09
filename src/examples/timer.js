@@ -16,20 +16,21 @@ const Counter = makeElement({
       false,
       chain(
         fromEvent("click"),
-        map((root) => root.querySelector(".action"), root)
+        map((node) => node.querySelector(".action"), root)
       )
     );
     const time = scan(
       (val) => val + 1,
       0,
-      filter((v) => v === true, sample(periodic(1000), isRunning))
+      filter((v) => v === true, sample(periodic(1), isRunning))
     );
 
+    // Render values
+    const displayTime = map((time) => (time / 1000).toFixed(3), time);
     const buttonText = map(
       (isRunning) => (isRunning ? "Stop" : "Start"),
       isRunning
     );
-    const displayTime = map((time) => time.toFixed(3), time);
 
     return html`
       <div class="timer">
