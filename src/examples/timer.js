@@ -9,6 +9,8 @@ import {
   filter,
 } from "../reactive/index.js";
 
+const PERCISION = 2;
+
 const Counter = makeElement({
   render: (_, html, { root }) => {
     const isRunning = scan(
@@ -20,13 +22,16 @@ const Counter = makeElement({
       )
     );
     const time = scan(
-      (val) => val + 1,
+      (val) => (val += 1 / 10 ** PERCISION),
       0,
-      filter((v) => v === true, sample(periodic(1), isRunning))
+      filter(
+        (v) => v === true,
+        sample(periodic(10 ** (3 - PERCISION)), isRunning)
+      )
     );
 
     // Render values
-    const displayTime = map((time) => (time / 1000).toFixed(3), time);
+    const displayTime = map((time) => time.toFixed(PERCISION), time);
     const buttonText = map(
       (isRunning) => (isRunning ? "Stop" : "Start"),
       isRunning
@@ -35,7 +40,7 @@ const Counter = makeElement({
     return html`
       <div class="timer">
         <button class="action">${buttonText}</button>
-        <div class="time">${displayTime}</div>
+        <div class="time">${displayTime}s</div>
       </div>
     `;
   },

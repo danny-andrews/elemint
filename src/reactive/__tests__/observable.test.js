@@ -1,5 +1,4 @@
-import { test } from "uvu";
-import * as assert from "uvu/assert";
+import { test, expect } from "vitest";
 import Observable from "../observable.js";
 
 test("Observable works", (done) => {
@@ -9,7 +8,7 @@ test("Observable works", (done) => {
       observer.complete();
     }).subscribe({
       next: (val) => {
-        assert.is(val, 4);
+        expect(val).toBe(4);
       },
       complete: () => {
         resolve();
@@ -17,5 +16,3 @@ test("Observable works", (done) => {
     });
   });
 });
-
-test.run();

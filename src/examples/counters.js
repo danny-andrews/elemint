@@ -28,6 +28,7 @@ const Counters = makeElement({
       (counts) =>
         counts.map((count) => {
           const { initial, multiplier } = count;
+
           return html.for(count)`
             <mint-counter
               .onDelete=${() => onDelete(count)}
@@ -38,10 +39,6 @@ const Counters = makeElement({
         }),
       counts
     );
-
-    const setMultiplier = (event) => {
-      multiplier.set(Number(event.target.value));
-    };
 
     return html`
       <button onclick=${createCounter}>Create Counter</button>

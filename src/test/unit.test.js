@@ -1,7 +1,6 @@
-import { test } from "uvu";
-import * as assert from "uvu/assert";
+import { expect, test } from "vitest";
 import makeElement from "../make-element.js";
-import { renderElement } from "../test-utils.js";
+import { renderElement } from "./index.js";
 
 // types :: String | Number | Boolean | Object
 // attr :: false | true | String
@@ -23,20 +22,20 @@ const propCases = {
   enabled: { default: false },
 };
 
-// test("accepts attribute name property name in HTML attribute", () => {
-//   const Element = makeElement({
-//     props: {
-//       maxLength: {
-//         attr: { name: "max-length" },
-//       },
-//     },
-//   });
-//   const subject = renderElement(Element, { "max-length": "22" });
+test("accepts attribute name property name in HTML attribute", () => {
+  const Element = makeElement({
+    props: {
+      maxLength: {
+        attr: { name: "max-length" },
+      },
+    },
+  });
+  const subject = renderElement(Element, { "max-length": "22" });
 
-//   assert.is(subject.maxLength, 22);
-// });
+  assert.is(subject.maxLength, 22);
+});
 
-// test("lowercases property name in HTML attribute");
+test.todo("lowercases property name in HTML attribute");
 
 test("defaults attr to true and type to String when given empty prop object", () => {
   const Element = makeElement({
@@ -47,17 +46,15 @@ test("defaults attr to true and type to String when given empty prop object", ()
   const subject = renderElement(Element);
 
   subject.name = "stuff";
-  assert.is(subject.getAttribute("name"), "stuff");
+  expect(subject.getAttribute("name")).toBe("stuff");
 });
 
-test("parses attribute to Nuber when default is a Number", () => {
+test("parses attribute to Number when default is a Number", () => {
   const Element = makeElement({
     props: {
       age: { default: 50 },
     },
   });
   const subject = renderElement(Element, { age: "22" });
-  assert.is(subject.age, 22);
+  expect(subject.age).toBe(22);
 });
-
-test.run();

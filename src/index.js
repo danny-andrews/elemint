@@ -1,1 +1,1 @@
-export { default } from "./element/index.js";
+export { default } from "./make-element.js";

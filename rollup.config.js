@@ -9,11 +9,9 @@ const badgeReporter = (...args) => {
 };
 
 export default {
-  input: "./src/comparisons/counter/mint-counter.js",
+  input: "./src/index.js",
   output: {
-    format: "iife",
     dir: "build",
-    entryFileNames: "[name].js",
   },
   plugins: [
     resolve({ browser: true }),

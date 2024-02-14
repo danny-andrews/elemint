@@ -1,5 +1,5 @@
-import makeElement from "../../make-element.js";
-import { map } from "../../reactive/index.js";
+import makeElement from "../make-element.js";
+import { map } from "../reactive/index.js";
 
 const KEYCODES = {
   ENTER: 13,

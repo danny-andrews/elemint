@@ -1,8 +1,6 @@
-import { test } from "uvu";
-import * as assert from "uvu/assert";
-import "../../scripts/test-setup.js";
+import { expect, test } from "vitest";
 import makeElement from "../make-element.js";
-import { renderElement } from "../test-utils.js";
+import { renderElement } from "./index.js";
 
 const Element = makeElement({
   props: {
@@ -28,17 +26,15 @@ const Element = makeElement({
 
 test("renders and stuff", () => {
   const element = renderElement(Element, { count: 4 });
-  assert.is(element.getAttribute("count"), "4");
-  assert.is(element.count, 4);
+  expect(element.getAttribute("count")).toBe("4");
+  expect(element.count).toBe(4);
   element.count = 87;
-  assert.is(element.getAttribute("count"), "87");
+  expect(element.getAttribute("count")).toBe("87");
   element.shadowRoot.querySelector('[data-test-id="decrement"]').click();
-  assert.is(element.getAttribute("count"), "86");
+  expect(element.getAttribute("count")).toBe("86");
   element.addEventListener("count-changed", (e) => {
-    assert.is(e.detail, 87);
+    expect(e.detail).toBe(e.detail);
   });
   element.shadowRoot.querySelector('[data-test-id="increment"]').click();
-  assert.is(element.getAttribute("count"), "87");
+  expect(element.getAttribute("count")).toBe("87");
 });
-
-test.run();

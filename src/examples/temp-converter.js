@@ -1,4 +1,4 @@
-import makeElement from "../../make-element.js";
+import makeElement from "../make-element.js";
 
 const Element = makeElement({
   props: {
