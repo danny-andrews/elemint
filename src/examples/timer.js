@@ -9,33 +9,35 @@ import {
   filter,
 } from "../reactive/index.js";
 
-const Counter = makeElement({
+export const Timer = makeElement({
   render: (_, html, { root }) => {
     const isRunning = scan(
       (value) => !value,
       false,
       chain(
         fromEvent("click"),
-        map((node) => node.querySelector(".action"), root)
-      )
+        map((node) => node.querySelector(".action"), root),
+      ),
     );
     const time = scan(
       (val) => val + 1,
       0,
-      filter((v) => v === true, sample(periodic(1), isRunning))
+      filter((v) => v === true, sample(periodic(100), isRunning)),
     );
 
     // Render values
-    const displayTime = map((time) => (time / 1000).toFixed(3), time);
+    const displayTime = map((time) => (time / 10).toFixed(1), time);
     const buttonText = map(
       (isRunning) => (isRunning ? "Stop" : "Start"),
-      isRunning
+      isRunning,
     );
 
     return html`
       <div class="timer">
         <button class="action">${buttonText}</button>
         <div class="time">${displayTime}</div>
+        ${html`<h4 style="color:green">hi ho</h4>`}
+        ${map(() => html`<h3>${displayTime}</h3>`, time)}
       </div>
     `;
   },
@@ -55,5 +57,3 @@ const Counter = makeElement({
     }
   `,
 });
-
-customElements.define("mint-timer", Counter);

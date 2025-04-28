@@ -1,8 +1,10 @@
-# EleMint
+# Elemint
 
 ![](docs/size-badge.svg)
 
-EleMint is a lightweight, reactive way to build web components. No classes, no compilers, no `this`, no decorators, no dynamic scoping madness (looking at you, React Hooks). Just plain functions and reactive variables.
+Elemint is a lightweight, reactive way to build web components. No classes, no compilers, no `this`, no decorators, no dynamic scoping madness. Just plain functions and reactive variables.
+
+## Example
 
 ```js
 import makeElement from "elemint";
@@ -26,58 +28,26 @@ const Counter = makeElement({
 customElements.define("my-counter", Counter);
 ```
 
-## API
-
-### Property/Attributes
-
-### Templates
-
-### Styles
-
-### Events
-
-### Types
-
-```ts
-makeElement :: ({ props: PropConfig[], render: (props: Props, html: fn, context: Context) => HTML, css: string })
-
-type Primitive = boolean | number | string;
-
-type PropConfig = {
-  name: string,
-  default?: Primitive,
-  attr?: true | false | string
-}
-
-type Props = {
-  [string]: Cell<any>
-}
-
-type Cell<T> = {
-  set: (value: T) => void,
-  update: ((value: T) => T) => void,
-  get: () => T,
-  subscribe: (value: T => void) => (unsubscribe: () => void)
-}
-
-type Context = {
-  html: fn,
-  emit: EventEmitter,
-  root: HTMLElement,
-  context: HTMLElement
-}
-
-type EventEmitter = (name: string, detail?: any, options?: EventOptions) => Event
-
-type EventOptions = {
-  detail: any,
-  bubbles: Boolean,
-  cancelable: Boolean,
-  composed: Boolean
-}
+```html
+<my-counter count="4" />
 ```
 
-## Requirements
+## Under the Hood
+
+This core of this library is a factory function which takes some configuration and a render function, and returns a CustomElement class.
+
+The core idea of this library is embedding reactive variables (or "cells") into HTML tagged template literals (courtesy of [lighterhtml](https://github.com/WebReflection/lighterhtml)).
+
+A `Cell` is a type of `Observable` which has a current value, and who's value can be set from outside its definition. They are analagous to [Svelte stores](https://svelte.dev/docs#svelte_store) and are a variation of a 'Property' or 'Behavior' from Functional Reacttive Programming.
+
+When a `Cell`'s value changes, only the corresponding part of the DOM is updated. So in the counter example above, when the `count` cell is updated by clicking on the increment and decrement buttons, only the text contained in the interpolated tags is updated.
+
+## Prior Art
+
+- [lighterHTML](https://github.com/WebReflection/lighterhtml)
+- [calmm-js](https://github.com/calmm-js)
+
+## Runtime Requirements
 
 - ES6 Symbols
 - ShadowDOM
@@ -86,31 +56,15 @@ type EventOptions = {
 
 If your target browser does not support these features, you will need to ship your own polyfills for them.
 
-## Under the Hood
-
-This core of this library is just a factory function which takes some configuration and a render function, and returns a CustomElement class.
-
-The core idea of this library is embedding reactive variables (or "cells") into HTML tagged template literals (courtesy of [lighterhtml](https://github.com/WebReflection/lighterhtml)).
-
-A Cell is an Observable which has a current value (also known as a Property or Behavior) with the additional property that its value can be set from outside its definition. They are analagous to [Svelte stores](https://svelte.dev/docs#svelte_store) if you are familiar with those.
-
-Anytime the cell's value changes, only the corresponding part of the DOM is updated. So in the counter example above, when the `count` cell is updated by clicking on the increment and decrement buttons, only the text contained in the interpolation tags is updated.
-
-## Prior Art
-
-- [lighterHTML](https://github.com/WebReflection/lighterhtml)
-- [calmm-js](https://github.com/calmm-js)
-
 ## Differences to LitElement
 
 1. No classes/multiple inheretence, etc.
 1. No polyfills assumed or included.
 1. Smaller bundle.
-1. No lifecycle to figure out.
 
 ## Aside: Google's Best Practices
 
-Google has a list of [best practices](https://developers.google.com/web/fundamentals/web-components/best-practices) for building web components, almost all of which are handled for you or simplified by elemint.
+Google has a list of [best practices](https://developers.google.com/web/fundamentals/web-components/best-practices) for building web components, almost all of which are automatically handled or simplified by elemint.
 
 ### Handled by elemint
 

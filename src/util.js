@@ -1,4 +1,5 @@
-const hasMethod = (method, value) => typeof value[method] === "function";
+const hasMethod = (method, value) =>
+  value != null && typeof value[method] === "function";
 
 export const isObservable = (value) => hasMethod("subscribe", value);
 

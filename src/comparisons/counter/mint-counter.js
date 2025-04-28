@@ -1,6 +1,6 @@
 import makeElement from "../../make-element.js";
 
-const Element = makeElement({
+const MintCounter = makeElement({
   props: {
     count: { default: 0 },
     disabled: { default: false },
@@ -32,5 +32,3 @@ const Element = makeElement({
     `;
   },
 });
-
-customElements.define("mint-counter", Element);

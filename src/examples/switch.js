@@ -1,5 +1,5 @@
-import makeElement from "../../make-element.js";
-import { map } from "../../reactive/index.js";
+import makeElement from "../make-element.js";
+import { map } from "../reactive/index.js";
 
 const KEYCODES = {
   ENTER: 13,
@@ -8,7 +8,7 @@ const KEYCODES = {
 
 let count = 0;
 
-const Element = makeElement({
+export const Switch = makeElement({
   props: {
     disabled: { default: false },
     checked: { default: false },
@@ -40,7 +40,7 @@ const Element = makeElement({
     const tabIndex = map((disabled) => (disabled ? -1 : 0), disabled);
     const labelStyle = map(
       (label) => (!label ? { marginRight: "10px" } : {}),
-      label
+      label,
     );
 
     count++;
@@ -126,5 +126,3 @@ const Element = makeElement({
     }
   `,
 });
-
-customElements.define("mint-switch", Element);

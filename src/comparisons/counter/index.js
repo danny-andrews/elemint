@@ -1,5 +1,5 @@
-import "./mint-counter.js";
-import "./lit-counter.js";
+import { MintCounter } from "./mint-counter.js";
+import { LitCounter } from "./lit-counter.js";
 
 const handleCountChangedEvent = (name) =>
   document
@@ -9,3 +9,6 @@ const handleCountChangedEvent = (name) =>
     });
 
 ["mint-counter", "lit-counter"].forEach(handleCountChangedEvent);
+
+customElements.define("mint-counter", MintCounter);
+customElements.define("lit-counter", LitCounter);

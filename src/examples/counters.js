@@ -1,51 +1,40 @@
 import makeElement from "../make-element.js";
 import { map } from "../reactive/index.js";
 
-const Counters = makeElement({
+export const Counters = makeElement({
   props: {
     counts: { default: [], attr: false },
-    multiplier: { default: 1 },
   },
-  render: ({ counts, multiplier }, html) => {
+  render: ({ counts }, html) => {
     const createCounter = () => {
       counts.update((oldCounts) => [
         ...oldCounts,
-        {
-          initial: oldCounts.length + 1,
-          multiplier: multiplier.get(),
-        },
+        { initial: oldCounts.length },
       ]);
-      multiplier.update((old) => old + 1);
     };
 
     const onDelete = (countToDelete) => {
       counts.update((oldCounts) =>
-        oldCounts.filter((count) => count !== countToDelete)
+        oldCounts.filter((count) => count !== countToDelete),
       );
     };
 
     const counters = map(
       (counts) =>
         counts.map((count) => {
-          const { initial, multiplier } = count;
           return html.for(count)`
             <mint-counter
               .onDelete=${() => onDelete(count)}
-              count=${initial}
-              multiplier=${multiplier}
+              count=${count.initial}
+              multiplier=${count.initial}
             ></mint-counter>
           `;
         }),
-      counts
+      counts,
     );
-
-    const setMultiplier = (event) => {
-      multiplier.set(Number(event.target.value));
-    };
 
     return html`
       <button onclick=${createCounter}>Create Counter</button>
-      <input value=${multiplier} type="number" />
       <div class="counters">${counters}</div>
     `;
   },
@@ -55,5 +44,3 @@ const Counters = makeElement({
     }
   `,
 });
-
-customElements.define("mint-counters", Counters);

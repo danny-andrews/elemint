@@ -1,6 +1,6 @@
 import { LitElement, html } from "lit-element";
 
-class Element extends LitElement {
+export class LitCounter extends LitElement {
   static get properties() {
     return {
       count: { type: Number, reflect: true },
@@ -18,7 +18,7 @@ class Element extends LitElement {
     this.dispatchEvent(
       new CustomEvent("count-changed", {
         detail: this.count,
-      })
+      }),
     );
   }
 
@@ -45,5 +45,3 @@ class Element extends LitElement {
     `;
   }
 }
-
-customElements.define("lit-counter", Element);

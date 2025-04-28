@@ -2,7 +2,7 @@ import * as R from "ramda";
 import makeElement from "../make-element";
 import { combineLatest, map } from "../reactive/index.js";
 
-const Counter = makeElement({
+export const Counter = makeElement({
   props: {
     multiplier: { default: 1 },
     count: { default: 0 },
@@ -33,7 +33,7 @@ const Counter = makeElement({
 
     const disabledText = map(
       (isDisabled) => (isDisabled ? "Enable" : "Disable"),
-      disabled
+      disabled,
     );
 
     return html`
@@ -58,5 +58,3 @@ const Counter = makeElement({
     }
   `,
 });
-
-customElements.define("mint-counter", Counter);

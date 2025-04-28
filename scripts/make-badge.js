@@ -4,7 +4,7 @@ import fs from "fs/promises";
 export default async ({ minSize, gzipSize }) => {
   const sizeBadge = await badge.v2([
     "Size",
-    [`${minSize} (min)`, "orange"],
+    [`${minSize} (min)`, "grey"],
     [`${gzipSize} (min + gzip)`, "green"],
   ]);
   await fs.writeFile("docs/size-badge.svg", sizeBadge);
